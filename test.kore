@@ -1,0 +1,24 @@
+; CaminoLang example
+(function hello
+    (print "Hello world"))
+
+(function hello-what what
+    (print (add "Hello " what)))
+
+(declare word i)
+(declare address p)
+
+(set p (address i))
+(add 5w 10w 15w)
+
+(if (gt 5w 10w)
+    (print "One")
+    (print "Two"))
+
+(set i 0w)
+(while (lt i 10w)
+    (print "iteration")
+    (set i (plus 1w i)))
+
+(hello)
+(hello-what "what")
