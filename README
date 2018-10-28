@@ -1,5 +1,5 @@
 SysyphOS
-=======
+========
 
 Last updated 2018-10-21.
 
@@ -65,7 +65,7 @@ Write some kind of shell to be able to run the compiler and editor
 Barebones code editor to be able to self-modify the SysyphOS code in
 itself
 
-2. THE CAMINOLANG PROGRAMMING LANGUAGE
+2. THE KORE PROGRAMMING LANGUAGE
 
 Somehow resembles lisp and uses s-expressions, but it is purely
 procedural and as simple as it can be to ease implementation.
@@ -147,23 +147,23 @@ a:
     (hello)
     (hello-what "what"))
 
-3. CAMINOLANG INTERPRETER, KORERUN.PY
+3. KORE INTERPRETER, KORERUN.PY
 
 Wip
 
-4. CAMINOLANG COMPILER
+4. KORE COMPILER
 
 Wip
 
-5. CAMINOS KERNEL
+5. SYSYPHOS KERNEL
 
 Wip
 
-6. CAMINOS SHELL
+6. SYSYPHOS SHELL
 
 Wip
 
-7. CAMINOS EDITOR (SEED)
+7. SYSYPHOS EDITOR (SEED)
 
 Wip
 

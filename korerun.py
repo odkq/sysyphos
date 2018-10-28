@@ -42,6 +42,7 @@ class KoreParser:
         ''' If it is not a list it can be a symbol to be resolved, or an
             inmediate variable '''
         if symbol in self.variables:
+            print(" *** found symbol {} to ve a variable".format(symbol))
             return self.variables[symbol]
         else:
             if symbol[0] == '"':
@@ -57,7 +58,7 @@ class KoreParser:
                 else:
                     msg = "Unknown suffix {} for inmediate"
                     raise ValueError(msg.format(tchar))
-                var.value = symbol[:-1]
+                var.value = int(symbol[:-1])
             return self._temporary_var(var)
 
     def _temporary_var(self, var):
@@ -77,23 +78,57 @@ class KoreParser:
         print(values[0])
         return None
 
+    def _return_trueval(self):
+        return self._temporary_var(Variable('bool', self.current_frame,
+                                            True))
+
+    def _return_falseval(self):
+        return self._temporary_var(Variable('bool', self.current_frame,
+                                            False))
+
     def gt_callback(self, values):
+        print(" *** {} > {} ? ".format(values[0].value, values[1].value))
         if values[0].value > values[1].value:
-            return self._temporary_var(Variable('bool', self.current_frame, True))
+            return self._return_trueval()
         else:
-            return self._temporary_var(Variable('bool', self.current_frame, False))
+            return self._return_falseval()
 
     def lt_callback(self, values):
+        print(" *** {} < {} ? ".format(values[0].value, values[1].value))
         if values[0].value < values[1].value:
-            return self._temporary_var(Variable('bool', self.current_frame, True))
+            return self._return_trueval()
         else:
-            return self._temporary_var(Variable('bool', self.current_frame, False))
+            return self._return_falseval()
+
+    def plus_callback(self, values):
+        print(" *** {} < {} ? ".format(values[0].value, values[1].value))
+        if values[0].value < values[1].value:
+            return self._return_trueval()
+        else:
+            return self._return_falseval()
+
+    def address_callback(self, values):
+        ''' Return the 'address' of a variable '''
+        return self._temporary_var(Variable('address', self.current_frame,
+                                   1234))
+
+    def plus_callback(self, values):
+        result = 0
+        for value in values:
+            print('Adding {}'.format(value.value))
+            result += int(value.value)
+        # TODO: Type promotion and juggling (do not return always w)
+        return self._temporary_var(Variable('word', self.current_frame,
+                                   result))
+
 
     def load_builtin_functions(self):
-        self.functions['add'] =  BuiltInFunction(self.add_callback)
+        self.functions['add'] = BuiltInFunction(self.add_callback)
         self.functions['print'] = BuiltInFunction(self.print_callback)
-        self.functions['gt'] =  BuiltInFunction(self.gt_callback)
+        self.functions['gt'] = BuiltInFunction(self.gt_callback)
         self.functions['lt'] = BuiltInFunction(self.lt_callback)
+        self.functions['address'] = BuiltInFunction(self.address_callback)
+        self.functions['plus'] = BuiltInFunction(self.plus_callback)
 
     def _frame_eval(self, expression):
         self.current_frame += 1
@@ -131,13 +166,19 @@ class KoreParser:
             if expression[1] not in self.variables.keys():
                 msg = "setting {} not declared"
                 raise ValueError(msg.format(expression[1]))
+            self.variables[expression[1]] = self.eval(expression[2])
+
         elif fname == 'while':
             if len(expression) < 3:
                 raise ValueError("while needs at least 3 parameters")
             condition = expression[1]
             expressions = expression[2:]
-            while (self.eval(condition) != 0):
-                return_value = self.eval(expressions)
+            while True:
+                test = self.eval(condition)
+                if test.value is True:
+                    return_value = self.eval(expressions)
+                else:
+                    break
         elif fname == 'if':
             if len(expression) < 4:
                 raise ValueError("if needs 2 or 3 parameters")
@@ -147,7 +188,8 @@ class KoreParser:
                 else_expression = expression[3]
             else:
                 else_expression = None
-            if self.eval(condition) != 0:
+            test = self.eval(condition)
+            if test.value is True:
                 return_value = self.eval(if_expression)
             else:
                 if else_expression is not None:
@@ -182,12 +224,10 @@ class KoreParser:
             recursively resolving subbranches before evaluating functions '''
         return_value = None
 
-        '''
         print('-----------')
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(ast)
         print('-----------')
-        '''
 
         if ast is None:
             ast = self.ast
